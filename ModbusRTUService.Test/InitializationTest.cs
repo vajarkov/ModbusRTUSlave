@@ -16,6 +16,8 @@ namespace ModbusRTUService.Test
     [TestClass]
     public class InitializationTest
     {
+        public class FileTest:FileParse{}
+        public class ModbusTest : ModbusService { }
         #region Тестирование конфигурации COM-порта
         [TestMethod]
         public void ConfigurationPort()
@@ -56,15 +58,15 @@ namespace ModbusRTUService.Test
         [TestMethod]
         public void ConfigurationSlave()
         {
-            ushort[][] AWAUS = null;                // Переменная для аналоговых значений 
-            ushort[][] BWAUS = null;
-            Dictionary<int, List<string>> unitAnalogFiles = null;  // Список файлов аналоговых сигналов 
+            Dictionary<byte, ushort[]> AWAUS = new Dictionary<byte,ushort[]>();                // Переменная для аналоговых значений 
+            Dictionary<byte, ushort[]> BWAUS = new Dictionary<byte, ushort[]>();
+            Dictionary<byte, List<string>> unitAnalogFiles = new Dictionary<byte, List<string>>();  // Список файлов аналоговых сигналов 
 
-            Dictionary<int, List<string>> unitDiscreteFiles = null; // Список файлов дискретных сигналов
+            Dictionary<byte, List<string>> unitDiscreteFiles = new Dictionary<byte, List<string>>(); // Список файлов дискретных сигналов
 
-            List<byte> slaveId = null;                      // Массив адресов устройств
-            IFileParse fileParse = new FileParse();    //Инициализация класса для обработки файлов
-            IModbusService mbSlave = new ModbusService();  //Инициализация класса трансляции данных по Modbus
+            List<byte> slaveId = new List<byte>();                      // Массив адресов устройств
+            IFileParse fileParse = new FileTest();    //Инициализация класса для обработки файлов
+            IModbusService mbSlave = new ModbusTest();  //Инициализация класса трансляции данных по Modbus
 
             // Откртытие конфигурационного файла
             System.Configuration.Configuration appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -75,12 +77,6 @@ namespace ModbusRTUService.Test
             // Если секция найдена
             if (slaveSettings != null)
             {
-                // Инициализируем массивы для аналоговых значений
-                unitAnalogFiles = new Dictionary<int, List<string>>();
-
-                // Инициализируем массивы для аналоговых значений
-                unitDiscreteFiles = new Dictionary<int, List<string>>();
-                slaveId = new List<byte>();
                 // Считываем конфигурацию 
                 foreach (Slaves slaves in slaveSettings.SlaveItems)     // Цикл списка устройств 
                 {
@@ -112,14 +108,16 @@ namespace ModbusRTUService.Test
             }
             foreach (byte id in slaveId)
             {
-                AWAUS[id] = fileParse.AWAUSParse(unitAnalogFiles[id]);
-                BWAUS[id] = fileParse.BWAUSParse(unitDiscreteFiles[id]);
+                AWAUS.Add(id,fileParse.AWAUSParse(unitAnalogFiles[id]));
+                Assert.IsNotNull(AWAUS[id]);
+                BWAUS.Add(id,fileParse.BWAUSParse(unitDiscreteFiles[id]));
+                Assert.IsNotNull(BWAUS[id]);
             }
             
             
             foreach (byte id in slaveId)
             {
-                mbSlave.CreateDataStore(id, ref AWAUS[id], ref BWAUS[id]);
+                    mbSlave.CreateDataStore(id, AWAUS[id], BWAUS[id]);
             }
         }
         #endregion

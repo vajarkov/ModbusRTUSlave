@@ -24,7 +24,7 @@ namespace ModbusRTUService
         private static Dictionary<byte, DataStore> mapSlavesData = new Dictionary<byte, DataStore>();
 
         // Создание хранилища данных для Modbus Slave
-        public void CreateDataStore(byte slaveId, ref ushort[] AWAUS, ref ushort[] BWAUS)
+        public void CreateDataStore(byte slaveId, ushort[] AWAUS, ushort[] BWAUS)
         {
             #region Создание хранилища
 

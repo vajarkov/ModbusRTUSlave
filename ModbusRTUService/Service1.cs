@@ -15,15 +15,19 @@ namespace ModbusRTUService
 
         public EventLog eventLog = new EventLog();      // Переменная для записи в журнал событий
         private System.Timers.Timer timerSrv;           // Таймер периодичности опроса
-        private Dictionary<int,List<string>> unitAnalogFiles;       // Список файлов аналоговых сигналов
-        private Dictionary<int, List<string>> unitDiscreteFiles;    // Список файлов дискретных сигналов
-        private ushort[][] AWAUS = null;                // Переменная для аналоговых значений 
-        private ushort[][] BWAUS = null;                // Переменная для дискретных значений 
+        // Список файлов аналоговых сигналов
+        private Dictionary<byte, List<string>> unitAnalogFiles = new Dictionary<byte, List<string>>();
+        // Список файлов дискретных сигналов
+        private Dictionary<byte, List<string>> unitDiscreteFiles = new Dictionary<byte, List<string>>();   
+        // Переменная для аналоговых значений 
+        private Dictionary<byte, ushort[]> AWAUS = new Dictionary<byte, ushort[]>();
+        // Переменная для дискретных значений 
+        private Dictionary<byte, ushort[]> BWAUS = new Dictionary<byte, ushort[]>();                
         // private ushort[] pto_1;                      // Переменная для аналоговых значений
         private IModbusService mbSlave;                 // Класс для трансляции данных в Modbus
         private IFileParse fileParse;                   // Класс для обработки файлов и записи их переменные
         private Thread threadSlave;                     // Поток, в котором будет работать Modbus
-        List<byte> slaveId = null;                      // Массив адресов устройств
+        List<byte> slaveId = new List<byte>();          // Массив адресов устройств
 
 
         // Инициализация службы
@@ -45,18 +49,13 @@ namespace ModbusRTUService
             // Если секция найдена
             if (slaveSettings != null)
             {
-                // Инициализируем массивы для аналоговых значений
-                unitAnalogFiles = new Dictionary<int, List<string>>();
-                
-                // Инициализируем массивы для аналоговых значений
-                unitDiscreteFiles = new Dictionary<int, List<string>>();
-                
                 // Считываем конфигурацию 
-                
                 foreach (Slaves slaves in slaveSettings.SlaveItems)     // Цикл списка устройств 
                 {
                     // Добаляем адрес устройства из конфигурации
                     slaveId.Add(slaves.Id);
+                    unitAnalogFiles.Add(slaves.Id, new List<string>());
+                    unitDiscreteFiles.Add(slaves.Id, new List<string>());
                     foreach (SlaveElement files in slaves.Slave)        // Цикл файлов для устройства
                     {
                         switch (files.Type)
@@ -136,8 +135,10 @@ namespace ModbusRTUService
 
             foreach (byte id in slaveId)
             {
-                AWAUS[id] = fileParse.AWAUSParse(unitAnalogFiles[id]);
-                BWAUS[id] = fileParse.BWAUSParse(unitDiscreteFiles[id]);
+                AWAUS.Add(id, fileParse.AWAUSParse(unitAnalogFiles[id]));
+                BWAUS.Add(id, fileParse.BWAUSParse(unitDiscreteFiles[id]));
+                //AWAUS[id] = fileParse.AWAUSParse(unitAnalogFiles[id]);
+                //BWAUS[id] = fileParse.BWAUSParse(unitDiscreteFiles[id]);
             }
            
             #endregion
@@ -173,7 +174,7 @@ namespace ModbusRTUService
             //Создаем и заполняем устройства данными из файлов
             foreach (byte id in slaveId)
             {
-                mbSlave.CreateDataStore(id, ref AWAUS[id], ref BWAUS[id]);
+                mbSlave.CreateDataStore(id, AWAUS[id], BWAUS[id]);
             }
             
             //Передаем потоку функцию из класса ModbusService с номером порта

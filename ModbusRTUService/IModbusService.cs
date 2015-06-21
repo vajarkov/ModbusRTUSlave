@@ -14,7 +14,7 @@ namespace ModbusRTUService
         /// <param name="slaveId">Номер утстройства Slave</param>
         /// <param name="AWAUS">Массив аналоговых значений</param>
         /// <param name="BWAUS">Массив дискретных значений, преобразованных в ushort[]</param>
-        void CreateDataStore(byte slaveId, ref ushort[] AWAUS, ref ushort[] BWAUS);
+        void CreateDataStore(byte slaveId, ushort[] AWAUS, ushort[] BWAUS);
 
         /// <summary>
         /// Метод для запуска устройства на нужном COM-порте
