@@ -6,6 +6,7 @@ using Modbus.Data;
 using Modbus.Device;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Collections.Specialized;
 
 namespace ModbusRTUService
 {
@@ -77,23 +78,26 @@ namespace ModbusRTUService
                     ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
                 // Поиск секции настроек COM-порта из конфигурационного файла
-                SerialPortSection SerialPortSection = 
-                    (SerialPortSection)ConfigurationManager.GetSection("SerialPortSettings");
+                NameValueCollection SerialPortSection = (NameValueCollection)ConfigurationManager.GetSection("SerialPortSettings");
                 
                 // Если секция найдена
                 if (SerialPortSection != null)
                 {
                     // Считываем данные порта
                     // Переменная из конфигурационного файла для обращения к нужному порту
-                    string portName = SerialPortSection.SerialSettings["PortName"].Value;
+                    string portName = SerialPortSection["PortName"];
+                    
                     // Переменная из конфигурационного файла для установки скорости порта
-                    int baudRate = Convert.ToInt32(SerialPortSection.SerialSettings["BaudRate"].Value);
+                    int baudRate = Convert.ToInt32(SerialPortSection["BaudRate"]);
+                    
                     // Переменная из конфигурационного файла для установки четности порта
-                    Parity parity = (Parity)Enum.Parse(typeof(Parity), SerialPortSection.SerialSettings["Parity"].Value);
+                    Parity parity = (Parity)Enum.Parse(typeof(Parity), SerialPortSection["Parity"]);
+                    
                     // Переменная из конфигурационного файла для установки битов данных
-                    int dataBits = Convert.ToInt16(SerialPortSection.SerialSettings["DataBits"].Value);
+                    int dataBits = Convert.ToInt16(SerialPortSection["DataBits"]);
+                    
                     // Переменная из конфигурационного файла для установки стопового бита
-                    StopBits stopBits = (StopBits)Enum.Parse(typeof(StopBits), SerialPortSection.SerialSettings["StopBits"].Value);
+                    StopBits stopBits = (StopBits)Enum.Parse(typeof(StopBits), SerialPortSection["StopBits"]);
 
                     #region Инициализируем и открываем COM-порт
                     //Создаем COM-порт

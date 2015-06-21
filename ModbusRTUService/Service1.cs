@@ -15,19 +15,15 @@ namespace ModbusRTUService
 
         public EventLog eventLog = new EventLog();      // Переменная для записи в журнал событий
         private System.Timers.Timer timerSrv;           // Таймер периодичности опроса
-        List<string>[] unitAnalogFiles;  // Список файлов аналоговых сигналов для Slave 3
-        //List<string>[] unitA4Files = new List<string>();  // Список файлов аналоговых сигналов для Slave 4
-        List<string>[] unitDiscreteFiles;                      // Список файлов дискретных сигналов для Slave 3
-        //List<string> unitB4Files = new List<string>();  // Список файлов дискретных сигналов для Slave 4
-        private ushort[][] AWAUS = null;                        // Переменная для аналоговых значений Slave 3 из файла AWAUS_UNIT3 
-        private ushort[][] BWAUS = null;                        // Переменная для дискретных значений Slave 3 из файла BWAUS_UNIT3
-        //private ushort[] AWAUS4;                        // Переменная для аналоговых значений Slave 4 из файла AWAUS_UNIT4
-        //private ushort[] BWAUS4;                        // Переменная для дискретных значений Slave 4 из файла BWAUS_UNIT3
-        // private ushort[] pto_1;                      // Переменная для аналоговых значений pto_1
+        private Dictionary<int,List<string>> unitAnalogFiles;       // Список файлов аналоговых сигналов
+        private Dictionary<int, List<string>> unitDiscreteFiles;    // Список файлов дискретных сигналов
+        private ushort[][] AWAUS = null;                // Переменная для аналоговых значений 
+        private ushort[][] BWAUS = null;                // Переменная для дискретных значений 
+        // private ushort[] pto_1;                      // Переменная для аналоговых значений
         private IModbusService mbSlave;                 // Класс для трансляции данных в Modbus
         private IFileParse fileParse;                   // Класс для обработки файлов и записи их переменные
         private Thread threadSlave;                     // Поток, в котором будет работать Modbus
-        List<byte> slaveId = null;                             // Массив 
+        List<byte> slaveId = null;                      // Массив адресов устройств
 
 
         // Инициализация службы
@@ -50,10 +46,10 @@ namespace ModbusRTUService
             if (slaveSettings != null)
             {
                 // Инициализируем массивы для аналоговых значений
-                unitAnalogFiles = new List<string>[slaveSettings.SlaveItems.Count];
+                unitAnalogFiles = new Dictionary<int, List<string>>();
                 
                 // Инициализируем массивы для аналоговых значений
-                unitDiscreteFiles = new List<string>[slaveSettings.SlaveItems.Count];
+                unitDiscreteFiles = new Dictionary<int, List<string>>();
                 
                 // Считываем конфигурацию 
                 

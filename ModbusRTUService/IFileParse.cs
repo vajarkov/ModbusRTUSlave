@@ -7,7 +7,7 @@ namespace ModbusRTUService
     /// <summary>
     /// Интерфейс для обработки файлов
     /// </summary>
-    interface IFileParse
+    public interface IFileParse
     {
         /// <summary>
         /// Метод обработки файла с аналоговыми значениями

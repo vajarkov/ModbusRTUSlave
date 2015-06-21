@@ -12,7 +12,7 @@ namespace ModbusRTUService
     /// <summary>
     /// Класс для обработки файлов с данными
     /// </summary>
-    class FileParse : IFileParse
+    public class FileParse : IFileParse
     {
         #region Считывание аналоговвых значений
         public ushort[] AWAUSParse(List<string> filesName)

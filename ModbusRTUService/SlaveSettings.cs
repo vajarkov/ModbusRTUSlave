@@ -8,10 +8,10 @@ namespace ModbusRTUService
 {
     public class SlaveSettings : ConfigurationSection
     {
-        [ConfigurationProperty("SlaveSettings", IsRequired=true)]
+        [ConfigurationProperty("", IsDefaultCollection=true)]
         public SlaveParamsSettings SlaveItems
         {
-            get { return ((SlaveParamsSettings)(base["SlaveSettings"])); }
+            get { return ((SlaveParamsSettings)(base[""])); }
         }
     }
 
@@ -91,10 +91,10 @@ namespace ModbusRTUService
             set {   base["type"] = value;   }
         }
 
-        [ConfigurationProperty("type", IsRequired=true)]
+        [ConfigurationProperty("filepath", IsRequired = true)]
         public string  FilePath{
-            get {   return (string)base["filepath"]; }
-            set {   base["filepath"] = value;   }
+            get { return (string)base["filepath"]; }
+            set { base["filepath"] = value; }
         }
     }
 }
