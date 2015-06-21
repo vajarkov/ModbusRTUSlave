@@ -54,7 +54,9 @@ namespace ModbusRTUService
                 {
                     // Добаляем адрес устройства из конфигурации
                     slaveId.Add(slaves.Id);
+                    // Инициализируем список для файлов аналоговых значений данного адреса
                     unitAnalogFiles.Add(slaves.Id, new List<string>());
+                    // Инициализируем список для файлов дискретных значений данного адреса
                     unitDiscreteFiles.Add(slaves.Id, new List<string>());
                     foreach (SlaveElement files in slaves.Slave)        // Цикл файлов для устройства
                     {
