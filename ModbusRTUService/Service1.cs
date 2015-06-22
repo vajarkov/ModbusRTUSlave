@@ -37,12 +37,12 @@ namespace ModbusRTUService
 
             InitializeComponent();
 
-
+            #region Чтение конфигурации Modbus устройств
             // Откртытие конфигурационного файла
             System.Configuration.Configuration appConfig =
                     ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
 
-            // Поиск секции настроек COM-порта из конфигурационного файла
+            // Поиск секции настроек Modbus Slave из конфигурационного файла
             SlaveSettings slaveSettings =
                     (SlaveSettings)ConfigurationManager.GetSection("SlaveSettings");
 
@@ -50,7 +50,7 @@ namespace ModbusRTUService
             if (slaveSettings != null)
             {
                 // Считываем конфигурацию 
-                foreach (Slaves slaves in slaveSettings.SlaveItems)     // Цикл списка устройств 
+                foreach (Slaves slaves in slaveSettings.SlaveFiles)     // Цикл списка устройств 
                 {
                     // Добаляем адрес устройства из конфигурации
                     slaveId.Add(slaves.Id);
@@ -76,6 +76,8 @@ namespace ModbusRTUService
                     }
                 }
             }
+
+            #endregion
 
             //Отключаем автоматическую запись в журнал
             AutoLog = false;
@@ -122,8 +124,7 @@ namespace ModbusRTUService
         }
 
         protected override void OnStop()
-        {
-            
+        { 
             #region Запись в журнал
 
             eventLog.WriteEntry("Служба остановлена");
@@ -134,13 +135,16 @@ namespace ModbusRTUService
         private void ReadAndModbus(object sender, ElapsedEventArgs e)
         {
             #region Обработка файлов и запись их в переменнные
-
+            // Очистка массивов значений перед записью 
+            AWAUS.Clear();
+            BWAUS.Clear();
+            // Запись массива значений из файла
             foreach (byte id in slaveId)
             {
+                // Считывание из файла аналоговых значений для данного устройства
                 AWAUS.Add(id, fileParse.AWAUSParse(unitAnalogFiles[id]));
+                // Считывание из файла дискретных значений для данного устройства
                 BWAUS.Add(id, fileParse.BWAUSParse(unitDiscreteFiles[id]));
-                //AWAUS[id] = fileParse.AWAUSParse(unitAnalogFiles[id]);
-                //BWAUS[id] = fileParse.BWAUSParse(unitDiscreteFiles[id]);
             }
            
             #endregion

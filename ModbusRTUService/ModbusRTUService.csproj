@@ -115,7 +115,6 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="ModbusRTUService_TemporaryKey.pfx" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

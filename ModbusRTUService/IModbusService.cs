@@ -19,7 +19,6 @@ namespace ModbusRTUService
         /// <summary>
         /// Метод для запуска устройства на нужном COM-порте
         /// </summary>
-        /// <param name="comPort">выбранный COM-порт</param>
         void StartRTU();
 
         /// <summary>
