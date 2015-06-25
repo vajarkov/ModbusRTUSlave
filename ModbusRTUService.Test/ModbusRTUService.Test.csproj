@@ -76,6 +76,7 @@
     <None Include="..\ModbusRTUService\app.config">
       <Link>app.config</Link>
     </None>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

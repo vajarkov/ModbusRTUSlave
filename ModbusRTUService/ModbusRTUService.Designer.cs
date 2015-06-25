@@ -35,7 +35,7 @@
             this.CanPauseAndContinue = true;
             this.CanShutdown = true;
             this.CanStop = true;
-            this.ServiceName = "Service1";
+            this.ServiceName = "ModbusRTUService";
 
         }
 

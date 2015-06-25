@@ -35,8 +35,8 @@
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
             this.bCOMSave = new System.Windows.Forms.Button();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
             this.bSlaveSave = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -128,16 +128,6 @@
             this.tabPage2.Text = "COM-порт";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
-            // tabPage3
-            // 
-            this.tabPage3.Controls.Add(this.bSlaveSave);
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(342, 289);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Конфигурация";
-            this.tabPage3.UseVisualStyleBackColor = true;
-            // 
             // bCOMSave
             // 
             this.bCOMSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -147,6 +137,16 @@
             this.bCOMSave.TabIndex = 0;
             this.bCOMSave.Text = "Сохранить";
             this.bCOMSave.UseVisualStyleBackColor = true;
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.Controls.Add(this.bSlaveSave);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Size = new System.Drawing.Size(342, 289);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Конфигурация";
+            this.tabPage3.UseVisualStyleBackColor = true;
             // 
             // bSlaveSave
             // 
@@ -166,7 +166,6 @@
             this.Controls.Add(this.tabControl1);
             this.Name = "Form1";
             this.Text = "Конфигуратор ModbusRTUService";
-            this.Shown += new System.EventHandler(this.Form1_Shown);
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage2.ResumeLayout(false);

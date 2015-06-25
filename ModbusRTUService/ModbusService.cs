@@ -72,8 +72,7 @@ namespace ModbusRTUService
             {
                 #region Чтение конфигурации COM-порта
                 // Откртытие конфигурационного файла
-                System.Configuration.Configuration appConfig =
-                    ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+                System.Configuration.Configuration appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).HasFile ? ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None) : ConfigurationManager.OpenExeConfiguration("ServiceConfig.exe");
 
                 // Поиск секции настроек COM-порта из конфигурационного файла
                 NameValueCollection SerialPortSection = (NameValueCollection)ConfigurationManager.GetSection("SerialPortSettings");

@@ -3,10 +3,11 @@ using System.ComponentModel;
 using System.Text;
 using System.Windows.Forms;
 using ModbusRTUService;
-using System.Configuration.Assemblies;
+using System.Configuration;
 using System.ServiceProcess;
 using System.Configuration.Install;
 using System.Diagnostics;
+using System.Collections.Specialized;
 
 
 namespace ServiceConfig
@@ -17,9 +18,19 @@ namespace ServiceConfig
         public Form1()
         {
             InitializeComponent();
-            
+            CheckService();
+            ConfigInit();
         }
 
+        private void ConfigInit()
+        {
+            System.Configuration.Configuration appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            SlaveSettings slaveSettings = (SlaveSettings)ConfigurationManager.GetSection("SlaveSettings");
+            NameValueCollection SerialPortSection = (NameValueCollection)ConfigurationManager.GetSection("SerialPortSettings");
+
+        }
+
+        #region Установка службы ModbusRTUService
         private void bInst_Click(object sender, EventArgs e)
         {
            string[] args = {"ModbusRTUService.exe"};
@@ -35,11 +46,11 @@ namespace ServiceConfig
                    return;
                }
            }
-           bDel.Enabled = true;
-           bInst.Enabled = false;
-           ControllerInit();
+           CheckService(); // Проверяем установлена ли служба и ее статус
         }
+        #endregion
 
+        #region Проверить установлена ли служба ModbusRTUService
         private bool ServiceIsExisted(string p)
         {
             ServiceController[] services = ServiceController.GetServices();
@@ -50,7 +61,9 @@ namespace ServiceConfig
             }
             return false;
         }
+        #endregion
 
+        #region Запуск службы
         private void bStart_Click(object sender, EventArgs e)
         {
             if (ServiceIsExisted("ModbusRTUService"))
@@ -60,7 +73,9 @@ namespace ServiceConfig
                 bStart.Enabled = false;
             }
         }
+        #endregion
 
+        #region Остановка службы
         private void bStop_Click(object sender, EventArgs e)
         {
             if (ServiceIsExisted("ModbusRTUService"))
@@ -70,41 +85,50 @@ namespace ServiceConfig
                 bStart.Enabled = true;
             }
         }
+        #endregion
 
-        private void Form1_Shown(object sender, EventArgs e)
+        #region Расстановка действий при установленной службе
+        private void CheckService()
         {
-
+            // Если служба установлена
             if (ServiceIsExisted("ModbusRTUService"))
             {
-                ControllerInit();
-                bDel.Enabled = true;
-                bInst.Enabled = false;
+                // Проверяем статус службы и выставляем действия
+                CheckStatus();
+                bDel.Enabled = true;    // Кнокпа "Установить" активна
+                bInst.Enabled = false;  // Кнокпа "Удалить" заблокирована
             }
             else
             {
-                bInst.Enabled = true;
-                bStop.Enabled = false;
-                bStart.Enabled = false;
-                bInst.Enabled = false;
+                bDel.Enabled = false;   // Кнокпа "Установить" заблокирована
+                bInst.Enabled = true;   // Кнокпа "Удалить" активна
+                bStop.Enabled = false;  // Кнокпа "Стоп" заблокирована
+                bStart.Enabled = false; // Кнокпа "Старт" заблокирована
             }
         }
+        #endregion
 
-        private void ControllerInit()
+        #region Проверить запущена ли служба ModbusRTUService
+        private void CheckStatus()
         {
+            // Cоздаем переменную с указателем на службу
             controller = new ServiceController("ModbusRTUService");
+            // Усли служба запущена
             if (controller.Status == ServiceControllerStatus.Running)
             {
-                bStop.Enabled = true;
-                bStart.Enabled = false;
+                bStop.Enabled = true;   // Кнокпа "Стоп" активна
+                bStart.Enabled = false; // Кнокпа "Старт" заблокирована
             }
             else
             {
-                bStop.Enabled = false;
-                bStart.Enabled = true;
+                bStop.Enabled = false;  // Кнокпа "Стоп" заблокирована
+                bStart.Enabled = true;  // Кнокпа "Старт" активна
             }
 
         }
+        #endregion
 
+        #region Удаление службы
         private void bDel_Click(object sender, EventArgs e)
         {
             string[] args = { "/u","ModbusRTUService.exe" };
@@ -120,21 +144,8 @@ namespace ServiceConfig
                     return;
                 }
             }
-            if (ServiceIsExisted("ModbusRTUService"))
-            {
-                ControllerInit();
-                bDel.Enabled = true;
-                bInst.Enabled = false;
-            }
-            else
-            {
-                bInst.Enabled = true;
-                bDel.Enabled = false;
-                bStop.Enabled = false;
-                bStart.Enabled = false;
-            }
-            
-            
+            CheckService(); // Проверяем установлена ли служба и ее статус
         }
+        #endregion
     }
 }

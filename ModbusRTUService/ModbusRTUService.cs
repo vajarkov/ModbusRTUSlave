@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Threading;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Configuration.Install;
+using System.Reflection;
 using System.Linq;
 
 namespace ModbusRTUService
@@ -37,15 +39,13 @@ namespace ModbusRTUService
 
             InitializeComponent();
 
-            #region Чтение конфигурации Modbus устройств
+            
             // Откртытие конфигурационного файла
-            System.Configuration.Configuration appConfig =
-                    ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-
+            System.Configuration.Configuration appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).HasFile ? ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None) : ConfigurationManager.OpenExeConfiguration("ServiceConfig.exe"); 
+           
             // Поиск секции настроек Modbus Slave из конфигурационного файла
-            SlaveSettings slaveSettings =
-                    (SlaveSettings)ConfigurationManager.GetSection("SlaveSettings");
-
+            SlaveSettings slaveSettings = (SlaveSettings)ConfigurationManager.GetSection("SlaveSettings");
+            
             // Если секция найдена
             if (slaveSettings != null)
             {
@@ -54,10 +54,13 @@ namespace ModbusRTUService
                 {
                     // Добаляем адрес устройства из конфигурации
                     slaveId.Add(slaves.Id);
-                    // Инициализируем список для файлов аналоговых значений данного адреса
+                    
+                    // Инициализируем список файлов аналоговых значений
                     unitAnalogFiles.Add(slaves.Id, new List<string>());
-                    // Инициализируем список для файлов дискретных значений данного адреса
+                    
+                    // Инициализируем список файлов дискретных значений
                     unitDiscreteFiles.Add(slaves.Id, new List<string>());
+                    
                     foreach (SlaveElement files in slaves.Slave)        // Цикл файлов для устройства
                     {
                         switch (files.Type)
@@ -66,9 +69,9 @@ namespace ModbusRTUService
                             case "Analog":
                                 unitAnalogFiles[slaves.Id].Add(files.FilePath);
                                 break;
-                            
+
                             // Добавление в список файлов файла с дискретными значениями
-                            case "Discrete": 
+                            case "Discrete":
                                 unitDiscreteFiles[slaves.Id].Add(files.FilePath);
                                 break;
                         }
@@ -76,8 +79,6 @@ namespace ModbusRTUService
                     }
                 }
             }
-
-            #endregion
 
             //Отключаем автоматическую запись в журнал
             AutoLog = false;
@@ -87,7 +88,7 @@ namespace ModbusRTUService
             {
                 EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService"); // Создаем журнал
             }
-            eventLog.Source = "ModbusRTUService"; //Помечаем, что будем писать в этот журнал
+            eventLog.Source = "ModbusRTUServiceEvents"; //Помечаем, что будем писать в этот журнал
 
             fileParse = new FileParse();    //Инициализация класса для обработки файлов
             mbSlave = new ModbusService();  //Инициализация класса трансляции данных по Modbus
@@ -108,7 +109,7 @@ namespace ModbusRTUService
 
             #region Инициализация таймера
             //Инициализация таймера
-            timerSrv = new System.Timers.Timer(10000);
+            timerSrv = new System.Timers.Timer();
             //Задание интервала опроса
             timerSrv.Interval = 60000;
             //Включение таймера
@@ -124,7 +125,8 @@ namespace ModbusRTUService
         }
 
         protected override void OnStop()
-        { 
+        {
+            
             #region Запись в журнал
 
             eventLog.WriteEntry("Служба остановлена");
@@ -135,15 +137,12 @@ namespace ModbusRTUService
         private void ReadAndModbus(object sender, ElapsedEventArgs e)
         {
             #region Обработка файлов и запись их в переменнные
-            // Очистка массивов значений перед записью 
+
             AWAUS.Clear();
             BWAUS.Clear();
-            // Запись массива значений из файла
             foreach (byte id in slaveId)
             {
-                // Считывание из файла аналоговых значений для данного устройства
                 AWAUS.Add(id, fileParse.AWAUSParse(unitAnalogFiles[id]));
-                // Считывание из файла дискретных значений для данного устройства
                 BWAUS.Add(id, fileParse.BWAUSParse(unitDiscreteFiles[id]));
             }
            

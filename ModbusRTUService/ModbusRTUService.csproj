@@ -114,9 +114,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="app.config" />
+    <None Include="ModbusRTUService.cd" />
     <None Include="ModbusRTUService_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
