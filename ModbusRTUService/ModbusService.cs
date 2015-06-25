@@ -70,6 +70,7 @@ namespace ModbusRTUService
             #region Создание и запуск устройства
             try
             {
+                #region Чтение конфигурации COM-порта
                 // Откртытие конфигурационного файла
                 System.Configuration.Configuration appConfig =
                     ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
@@ -95,6 +96,8 @@ namespace ModbusRTUService
                     
                     // Переменная из конфигурационного файла для установки стопового бита
                     StopBits stopBits = (StopBits)Enum.Parse(typeof(StopBits), SerialPortSection["StopBits"]);
+
+                #endregion
 
                     #region Инициализируем и открываем COM-порт
                     //Создаем COM-порт

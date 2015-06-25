@@ -9,7 +9,7 @@ namespace ModbusRTUService
     public class SlaveSettings : ConfigurationSection
     {
         [ConfigurationProperty("", IsDefaultCollection=true)]
-        public SlaveParamsSettings SlaveItems
+        public SlaveParamsSettings SlaveFiles
         {
             get { return ((SlaveParamsSettings)(base[""])); }
         }

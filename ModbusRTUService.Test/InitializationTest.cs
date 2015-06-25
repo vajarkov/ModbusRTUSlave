@@ -78,13 +78,13 @@ namespace ModbusRTUService.Test
             if (slaveSettings != null)
             {
                 // Считываем конфигурацию 
-                foreach (Slaves slaves in slaveSettings.SlaveItems)     // Цикл списка устройств 
+                foreach (Slaves slaves in slaveSettings.SlaveFiles)     // Цикл списка устройств 
                 {
                     // Добаляем адрес устройства из конфигурации
                     slaveId.Add(slaves.Id);
                     unitAnalogFiles.Add(slaves.Id, new List<string>());
                     unitDiscreteFiles.Add(slaves.Id, new List<string>());
-                    int nSlaves = slaveSettings.SlaveItems.Count;
+                    int nSlaves = slaveSettings.SlaveFiles.Count;
                     Debug.Assert(nSlaves > 1);
                     foreach (SlaveElement files in slaves.Slave)        // Цикл файлов для устройства
                     {
