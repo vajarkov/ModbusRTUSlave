@@ -41,7 +41,7 @@
             // 
             this.serviceInstaller1.Description = "Служба обмена данных по Modbus блока 3 и 4 ";
             this.serviceInstaller1.DisplayName = "ModbusRTUService";
-            this.serviceInstaller1.ServiceName = "Service1";
+            this.serviceInstaller1.ServiceName = "ModbusRTUService";
             this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller

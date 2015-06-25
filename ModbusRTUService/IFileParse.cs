@@ -19,7 +19,7 @@ namespace ModbusRTUService
         /// <summary>
         /// Метод обработки файла с дискретными значениями
         /// </summary>
-        /// <param name="fileName">Путь и имя файла</param>
+        /// <param name="filesName">Путь и имена файлов</param>
         /// <returns>Массив данных ushort[]</returns>
         ushort[] BWAUSParse(List<string> filesName);
         

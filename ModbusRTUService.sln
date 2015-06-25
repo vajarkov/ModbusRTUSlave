@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Modbus", "..\Nmodbus-master
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModbusRTUService.Test", "ModbusRTUService.Test\ModbusRTUService.Test.csproj", "{C91F9589-910A-429B-8F9E-B671C2ED5095}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceConfig", "ServiceConfig\ServiceConfig.csproj", "{A9B65503-A9DB-4850-8D5C-D3FA576E790D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		CD_ROM|Any CPU = CD_ROM|Any CPU
@@ -55,6 +57,18 @@ Global
 		{C91F9589-910A-429B-8F9E-B671C2ED5095}.SignedRelease|Any CPU.Build.0 = Release|Any CPU
 		{C91F9589-910A-429B-8F9E-B671C2ED5095}.SingleImage|Any CPU.ActiveCfg = Release|Any CPU
 		{C91F9589-910A-429B-8F9E-B671C2ED5095}.SingleImage|Any CPU.Build.0 = Release|Any CPU
+		{A9B65503-A9DB-4850-8D5C-D3FA576E790D}.CD_ROM|Any CPU.ActiveCfg = Release|Any CPU
+		{A9B65503-A9DB-4850-8D5C-D3FA576E790D}.CD_ROM|Any CPU.Build.0 = Release|Any CPU
+		{A9B65503-A9DB-4850-8D5C-D3FA576E790D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9B65503-A9DB-4850-8D5C-D3FA576E790D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9B65503-A9DB-4850-8D5C-D3FA576E790D}.DVD-5|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9B65503-A9DB-4850-8D5C-D3FA576E790D}.DVD-5|Any CPU.Build.0 = Debug|Any CPU
+		{A9B65503-A9DB-4850-8D5C-D3FA576E790D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9B65503-A9DB-4850-8D5C-D3FA576E790D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9B65503-A9DB-4850-8D5C-D3FA576E790D}.SignedRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{A9B65503-A9DB-4850-8D5C-D3FA576E790D}.SignedRelease|Any CPU.Build.0 = Release|Any CPU
+		{A9B65503-A9DB-4850-8D5C-D3FA576E790D}.SingleImage|Any CPU.ActiveCfg = Release|Any CPU
+		{A9B65503-A9DB-4850-8D5C-D3FA576E790D}.SingleImage|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

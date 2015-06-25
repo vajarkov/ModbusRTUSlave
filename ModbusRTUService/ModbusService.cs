@@ -67,9 +67,6 @@ namespace ModbusRTUService
         //Запуск Modbus-устройства
         public void StartRTU()
         {
-           
-            
-
             #region Создание и запуск устройства
             try
             {

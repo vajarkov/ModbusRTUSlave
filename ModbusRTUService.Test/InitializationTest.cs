@@ -119,6 +119,7 @@ namespace ModbusRTUService.Test
             {
                     mbSlave.CreateDataStore(id, AWAUS[id], BWAUS[id]);
             }
+
         }
         #endregion
 

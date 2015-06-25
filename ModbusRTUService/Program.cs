@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ServiceProcess;
 using System.Diagnostics;
+using System.Configuration.Install;
 
 namespace ModbusRTUService
 {
@@ -23,11 +24,11 @@ namespace ModbusRTUService
             catch(Exception ex)
             {
                 EventLog eventLog = new EventLog();
-                if (!EventLog.SourceExists("ModbusRTUService"))
+                if (!EventLog.SourceExists("ModbusRTUServiceEvents"))
                 {
-                    EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService");
+                    EventLog.CreateEventSource("ModbusRTUServiceEvents", "ModbusRTUServiceEvents");
                 }
-                eventLog.Source = "ModbusRTUService";
+                eventLog.Source = "ModbusRTUServiceEvents";
                 eventLog.WriteEntry(String.Format("Exception: {0} \n\nStack: {1}", ex.Message + " : " + ex.ToString(), ex.StackTrace) , EventLogEntryType.Error );
             }
         }
