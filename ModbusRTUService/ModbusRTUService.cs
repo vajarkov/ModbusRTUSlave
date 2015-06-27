@@ -38,13 +38,25 @@ namespace ModbusRTUService
             #region Инициализация компонентов
 
             InitializeComponent();
+            //Отключаем автоматическую запись в журнал
+            AutoLog = false;
 
-            
+            // Создаем журнал событий и записываем в него
+            if (!EventLog.SourceExists("ModbusRTUService")) //Если журнал с таким названием не существует
+            {
+                EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService"); // Создаем журнал
+            }
+            eventLog.Source = "ModbusRTUServiceEvents"; //Помечаем, что будем писать в этот журнал
+
+
+
+            string exePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ServiceConfig.exe");
+
             // Откртытие конфигурационного файла
-            System.Configuration.Configuration appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).HasFile ? ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None) : ConfigurationManager.OpenExeConfiguration("ServiceConfig.exe"); 
+            System.Configuration.Configuration appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).HasFile ? ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None) : ConfigurationManager.OpenExeConfiguration(exePath); 
            
             // Поиск секции настроек Modbus Slave из конфигурационного файла
-            SlaveSettings slaveSettings = (SlaveSettings)ConfigurationManager.GetSection("SlaveSettings");
+            SlaveSettings slaveSettings = (SlaveSettings)appConfig.GetSection("SlaveSettings");
             
             // Если секция найдена
             if (slaveSettings != null)
@@ -80,15 +92,7 @@ namespace ModbusRTUService
                 }
             }
 
-            //Отключаем автоматическую запись в журнал
-            AutoLog = false;
-
-            // Создаем журнал событий и записываем в него
-            if (!EventLog.SourceExists("ModbusRTUService")) //Если журнал с таким названием не существует
-            {
-                EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService"); // Создаем журнал
-            }
-            eventLog.Source = "ModbusRTUServiceEvents"; //Помечаем, что будем писать в этот журнал
+            
 
             fileParse = new FileParse();    //Инициализация класса для обработки файлов
             mbSlave = new ModbusService();  //Инициализация класса трансляции данных по Modbus
@@ -137,7 +141,7 @@ namespace ModbusRTUService
         private void ReadAndModbus(object sender, ElapsedEventArgs e)
         {
             #region Обработка файлов и запись их в переменнные
-
+            
             AWAUS.Clear();
             BWAUS.Clear();
             foreach (byte id in slaveId)

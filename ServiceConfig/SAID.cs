@@ -8,27 +8,46 @@ using System.ServiceProcess;
 using System.Configuration.Install;
 using System.Diagnostics;
 using System.Collections.Specialized;
+using System.IO.Ports;
 
 
 namespace ServiceConfig
 {
-    public partial class Form1 : Form
+    public partial class SAID : Form
     {
-        private ServiceController controller;
-        public Form1()
+        private ServiceController controller;   // Переменная для работы со службой
+        private SlaveSettings slaveSettings;    // Переменная для конфигурации файлов с данными
+        private KeyValueConfigurationCollection SerialPortSection;  // Переменная для конфигурации порта
+
+        public SAID()
         {
             InitializeComponent();
             CheckService();
             ConfigInit();
+            string[] ports = SerialPort.GetPortNames();
+            foreach (string port in ports)
+            {
+                comboBox1.Items.Add(port);
+            }
+            comboBox1.SelectedItem = SerialPortSection["PortName"].Value;
+            
+            comboBox2.SelectedItem = SerialPortSection["BaudRate"].Value;
+            //comboBox3.SelectedItem = SerialPortSection["Parity"].Value;
+
+
         }
 
+
+
+        #region Конфигурация программы
         private void ConfigInit()
         {
             System.Configuration.Configuration appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
-            SlaveSettings slaveSettings = (SlaveSettings)ConfigurationManager.GetSection("SlaveSettings");
-            NameValueCollection SerialPortSection = (NameValueCollection)ConfigurationManager.GetSection("SerialPortSettings");
+            slaveSettings = (SlaveSettings)appConfig.GetSection("SlaveSettings");
+            SerialPortSection = ((AppSettingsSection)appConfig.GetSection("SerialPortSettings")).Settings;
 
         }
+        #endregion
 
         #region Установка службы ModbusRTUService
         private void bInst_Click(object sender, EventArgs e)
@@ -147,5 +166,6 @@ namespace ServiceConfig
             CheckService(); // Проверяем установлена ли служба и ее статус
         }
         #endregion
-    }
+
+           }
 }

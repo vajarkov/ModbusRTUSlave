@@ -27,8 +27,7 @@ namespace ModbusRTUService.Test
 
             Assert.IsNotNull(appConfig);
 
-            NameValueCollection SerialPortSection =
-                (NameValueCollection)ConfigurationManager.GetSection("SerialPortSettings");
+            KeyValueConfigurationCollection SerialPortSection = ((AppSettingsSection)appConfig.GetSection("SerialPortSettings")).Settings;
             Assert.IsNotNull(SerialPortSection);
                 
                 // Если секция найдена
@@ -36,19 +35,20 @@ namespace ModbusRTUService.Test
                 {
                     // Считываем данные порта
                     // Переменная из конфигурационного файла для обращения к нужному порту
-                    string portName = SerialPortSection["PortName"];
+                    string portName = SerialPortSection["PortName"].Value;
                     Debug.Assert(portName == "COM1");
                     // Переменная из конфигурационного файла для установки скорости порта
-                    int baudRate = Convert.ToInt32(SerialPortSection["BaudRate"]);
+                    int baudRate = Convert.ToInt32(SerialPortSection["BaudRate"].Value);
                     Assert.AreEqual(baudRate,19200);
                     // Переменная из конфигурационного файла для установки четности порта
-                    Parity parity = (Parity)Enum.Parse(typeof(Parity), SerialPortSection["Parity"]);
-                    Assert.AreEqual(SerialPortSection["Parity"],"None");
+                    Parity parity = (Parity)Enum.Parse(typeof(Parity), SerialPortSection["Parity"].Value);
+                    Assert.AreEqual(parity,Parity.None);
                     // Переменная из конфигурационного файла для установки битов данных
-                    int dataBits = Convert.ToInt16(SerialPortSection["DataBits"]);
+                    int dataBits = Convert.ToInt16(SerialPortSection["DataBits"].Value);
                     Assert.AreEqual(dataBits, 8);
                     // Переменная из конфигурационного файла для установки стопового бита
-                    StopBits stopBits = (StopBits)Enum.Parse(typeof(StopBits), SerialPortSection["StopBits"]);
+                    StopBits stopBits = (StopBits)Enum.Parse(typeof(StopBits), SerialPortSection["StopBits"].Value);
+                    Assert.AreEqual(stopBits, StopBits.One);
                     SerialPort comPort = new SerialPort(portName, baudRate, parity, dataBits, stopBits);
                 }
         }
@@ -72,7 +72,7 @@ namespace ModbusRTUService.Test
             System.Configuration.Configuration appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             Assert.IsNotNull(appConfig);
             // Поиск секции настроек COM-порта из конфигурационного файла
-            SlaveSettings slaveSettings = (SlaveSettings)ConfigurationManager.GetSection("SlaveSettings");
+            SlaveSettings slaveSettings = (SlaveSettings)appConfig.GetSection("SlaveSettings");
             Assert.IsNotNull(slaveSettings);
             // Если секция найдена
             if (slaveSettings != null)

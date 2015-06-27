@@ -57,9 +57,21 @@ namespace ModbusRTUService
             #endregion
 
             #region Добавление хранилища в общий массив
-
-            mapSlavesData.Add(slaveId, dataStore);
-
+            try
+            {
+                mapSlavesData.Add(slaveId, dataStore);
+            }
+            catch (Exception ex)
+            {
+                //Если ошибка пишем в журнал
+                EventLog eventLog = new EventLog();
+                if (!EventLog.SourceExists("ModbusRTUService"))
+                {
+                    EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService");
+                }
+                eventLog.Source = "ModbusRTUService";
+                eventLog.WriteEntry(ex.Message, EventLogEntryType.Error);
+            }
             #endregion
 
         }
@@ -70,31 +82,33 @@ namespace ModbusRTUService
             #region Создание и запуск устройства
             try
             {
+                string exePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ServiceConfig.exe"); 
                 #region Чтение конфигурации COM-порта
                 // Откртытие конфигурационного файла
-                System.Configuration.Configuration appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).HasFile ? ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None) : ConfigurationManager.OpenExeConfiguration("ServiceConfig.exe");
+                System.Configuration.Configuration appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).HasFile ? ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None) : ConfigurationManager.OpenExeConfiguration(exePath); 
 
                 // Поиск секции настроек COM-порта из конфигурационного файла
-                NameValueCollection SerialPortSection = (NameValueCollection)ConfigurationManager.GetSection("SerialPortSettings");
-                
+                KeyValueConfigurationCollection SerialPortSection = ((AppSettingsSection)appConfig.GetSection("SerialPortSettings")).Settings;
+               
+
                 // Если секция найдена
                 if (SerialPortSection != null)
                 {
                     // Считываем данные порта
                     // Переменная из конфигурационного файла для обращения к нужному порту
-                    string portName = SerialPortSection["PortName"];
+                    string portName = SerialPortSection["PortName"].Value;
                     
                     // Переменная из конфигурационного файла для установки скорости порта
-                    int baudRate = Convert.ToInt32(SerialPortSection["BaudRate"]);
+                    int baudRate = Convert.ToInt32(SerialPortSection["BaudRate"].Value);
                     
                     // Переменная из конфигурационного файла для установки четности порта
-                    Parity parity = (Parity)Enum.Parse(typeof(Parity), SerialPortSection["Parity"]);
+                    Parity parity = (Parity)Enum.Parse(typeof(Parity), SerialPortSection["Parity"].Value);
                     
                     // Переменная из конфигурационного файла для установки битов данных
-                    int dataBits = Convert.ToInt16(SerialPortSection["DataBits"]);
+                    int dataBits = Convert.ToInt16(SerialPortSection["DataBits"].Value);
                     
                     // Переменная из конфигурационного файла для установки стопового бита
-                    StopBits stopBits = (StopBits)Enum.Parse(typeof(StopBits), SerialPortSection["StopBits"]);
+                    StopBits stopBits = (StopBits)Enum.Parse(typeof(StopBits), SerialPortSection["StopBits"].Value);
 
                 #endregion
 
