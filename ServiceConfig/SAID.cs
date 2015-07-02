@@ -18,7 +18,8 @@ namespace ServiceConfig
         private Configuration appConfig;        // Переменная для чтения конфигурации
         private ServiceController controller;   // Переменная для работы со службой
         private SlaveSettings slaveSettings;    // Переменная для конфигурации файлов с данными
-        private KeyValueConfigurationCollection SerialPortSection;  // Переменная для конфигурации порта
+        private AppSettingsSection SerialPortSection;  // Переменная для конфигурации порта
+        private EventLog events = new EventLog();
 
         public SAID()
         {
@@ -27,7 +28,7 @@ namespace ServiceConfig
             ConfigInit();
             ComboBoxInit(cbPort, SerialPort.GetPortNames(), "PortName");
             ComboBoxInit(cbBaudRate, new string[] { "1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400" }, "BaudRate");
-           ComboBoxInit(cbParity, Enum.GetNames(typeof (Parity)), "Parity");
+            ComboBoxInit(cbParity, Enum.GetNames(typeof (Parity)), "Parity");
              ///foreach (string parity in Enum.GetNames(typeof(Parity)))/
              ///{
              ///   cbParity.Items.Add(parity);
@@ -52,7 +53,7 @@ namespace ServiceConfig
             {
                 cbItem.Items.Add(item);
             }
-            cbItem.SelectedItem = SerialPortSection[section].Value;
+            cbItem.SelectedItem = SerialPortSection.Settings[section].Value;
         }
 
         #region Конфигурация программы
@@ -60,7 +61,7 @@ namespace ServiceConfig
         {
             appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
             slaveSettings = (SlaveSettings)appConfig.GetSection("SlaveSettings");
-            SerialPortSection = ((AppSettingsSection)appConfig.GetSection("SerialPortSettings")).Settings;
+            SerialPortSection = (AppSettingsSection)appConfig.GetSection("SerialPortSettings");
 
         }
         #endregion
@@ -68,6 +69,7 @@ namespace ServiceConfig
         #region Установка службы ModbusRTUService
         private void bInst_Click(object sender, EventArgs e)
         {
+           
            string[] args = {"ModbusRTUService.exe"};
            if(!ServiceIsExisted("ModbusRTUService"))
            {
@@ -186,14 +188,62 @@ namespace ServiceConfig
         #region Сохранение параметров COM-порта
         private void bCOMSave_Click(object sender, EventArgs e)
         {
-            SerialPortSection["PortName"].Value = cbPort.SelectedText;
-            SerialPortSection["BaudRate"].Value = cbBaudRate.SelectedText;
-            SerialPortSection["Parity"].Value = cbParity.SelectedText;
-            SerialPortSection["DataBits"].Value = cbDataBits.SelectedText;
-            SerialPortSection["StopBits"].Value = cbStopBit.SelectedText;
-            ConfigurationManager.RefreshSection("SerialPortSettings");
-            appConfig.Save(ConfigurationSaveMode.Modified, true);
-            //appConfig;
+            if (!SerialPortSection.SectionInformation.IsProtected)
+            {
+                SerialPortSection.SectionInformation.ForceSave = true;
+                SerialPortSection.Settings["PortName"].Value = cbPort.SelectedText;
+                SerialPortSection.Settings["BaudRate"].Value = cbBaudRate.SelectedText;
+                SerialPortSection.Settings["Parity"].Value = cbParity.SelectedText;
+                SerialPortSection.Settings["DataBits"].Value = cbDataBits.SelectedText;
+                SerialPortSection.Settings["StopBits"].Value = cbStopBit.SelectedText;
+                
+                //ConfigurationManager.RefreshSection("SerialPortSettings");
+                appConfig.Save(ConfigurationSaveMode.Modified, true);
+                //appConfig;
+            }
+        }
+        #endregion
+
+        #region Обновление ошибок 
+        private void bRefreshEvent_Click(object sender, EventArgs e)
+        {
+            gvEvents.Rows.Clear();
+            if (!EventLog.SourceExists("ModbusRTUService"))
+            {
+                EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService"); // Создаем журнал
+            }
+            events.Log = "ModbusRTUService";
+            events.Source = "ModbusRTUService";
+            if (events.Entries.Count > 0)
+            {
+                foreach (EventLogEntry entry in events.Entries)
+                {
+                    gvEvents.Rows.Add(entry.TimeGenerated, entry.Message);
+                    if (entry.EntryType == EventLogEntryType.Error)
+                    {
+                        gvEvents.Rows[gvEvents.Rows.Count - 1].Cells["DateEvent"].Style.BackColor = System.Drawing.Color.Red;
+                        gvEvents.Rows[gvEvents.Rows.Count - 1].Cells["DateEvent"].Style.ForeColor = System.Drawing.Color.White;
+                        gvEvents.Rows[gvEvents.Rows.Count - 1].Cells["EventMessage"].Style.BackColor = System.Drawing.Color.Red;
+                        gvEvents.Rows[gvEvents.Rows.Count - 1].Cells["EventMessage"].Style.ForeColor = System.Drawing.Color.White;
+
+                    }
+                    else
+                    {
+                        gvEvents.Rows[gvEvents.Rows.Count - 1].Cells["DateEvent"].Style.BackColor = System.Drawing.Color.White;
+                        gvEvents.Rows[gvEvents.Rows.Count - 1].Cells["DateEvent"].Style.ForeColor = System.Drawing.Color.Black;
+                        gvEvents.Rows[gvEvents.Rows.Count - 1].Cells["EventMessage"].Style.BackColor = System.Drawing.Color.White;
+                        gvEvents.Rows[gvEvents.Rows.Count - 1].Cells["EventMessage"].Style.ForeColor = System.Drawing.Color.Black;
+                    }
+                }
+                gvEvents.Sort(DateEvent, ListSortDirection.Descending);
+            }
+        }
+        #endregion
+
+        #region Просмотр ошибки
+        private void gvEvents_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            MessageBox.Show(gvEvents.Rows[e.RowIndex].Cells["EventMessage"].Value.ToString(), gvEvents.Rows[e.RowIndex].Cells["DateEvent"].Value.ToString());
         }
         #endregion
     }

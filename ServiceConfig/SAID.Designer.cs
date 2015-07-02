@@ -28,13 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
-            
             this.bInst = new System.Windows.Forms.Button();
             this.bDel = new System.Windows.Forms.Button();
             this.bStart = new System.Windows.Forms.Button();
             this.bStop = new System.Windows.Forms.Button();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.bRefreshEvent = new System.Windows.Forms.Button();
+            this.gvEvents = new System.Windows.Forms.DataGridView();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
@@ -50,8 +51,11 @@
             this.bCOMSave = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.bSlaveSave = new System.Windows.Forms.Button();
+            this.DateEvent = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.EventMessage = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gvEvents)).BeginInit();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.SuspendLayout();
@@ -117,6 +121,8 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.bRefreshEvent);
+            this.tabPage1.Controls.Add(this.gvEvents);
             this.tabPage1.Controls.Add(this.bInst);
             this.tabPage1.Controls.Add(this.bStop);
             this.tabPage1.Controls.Add(this.bDel);
@@ -128,6 +134,38 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Установка и Запуск";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // bRefreshEvent
+            // 
+            this.bRefreshEvent.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.bRefreshEvent.Location = new System.Drawing.Point(8, 229);
+            this.bRefreshEvent.Name = "bRefreshEvent";
+            this.bRefreshEvent.Size = new System.Drawing.Size(99, 52);
+            this.bRefreshEvent.TabIndex = 5;
+            this.bRefreshEvent.Text = "Обновить ошибки";
+            this.bRefreshEvent.UseVisualStyleBackColor = true;
+            this.bRefreshEvent.Click += new System.EventHandler(this.bRefreshEvent_Click);
+            // 
+            // gvEvents
+            // 
+            this.gvEvents.AllowUserToAddRows = false;
+            this.gvEvents.AllowUserToDeleteRows = false;
+            this.gvEvents.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.gvEvents.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.gvEvents.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.DateEvent,
+            this.EventMessage});
+            this.gvEvents.Location = new System.Drawing.Point(6, 6);
+            this.gvEvents.MultiSelect = false;
+            this.gvEvents.Name = "gvEvents";
+            this.gvEvents.ReadOnly = true;
+            this.gvEvents.RowHeadersVisible = false;
+            this.gvEvents.ShowEditingIcon = false;
+            this.gvEvents.Size = new System.Drawing.Size(328, 217);
+            this.gvEvents.TabIndex = 4;
+            this.gvEvents.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.gvEvents_CellContentClick);
             // 
             // tabPage2
             // 
@@ -275,6 +313,25 @@
             this.bSlaveSave.Text = "Сохранить";
             this.bSlaveSave.UseVisualStyleBackColor = true;
             // 
+            // DateEvent
+            // 
+            this.DateEvent.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.DisplayedCells;
+            this.DateEvent.HeaderText = "Время";
+            this.DateEvent.MaxInputLength = 1000000;
+            this.DateEvent.Name = "DateEvent";
+            this.DateEvent.ReadOnly = true;
+            this.DateEvent.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            this.DateEvent.Width = 65;
+            // 
+            // EventMessage
+            // 
+            this.EventMessage.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.EventMessage.HeaderText = "Ошибка";
+            this.EventMessage.MaxInputLength = 1000000;
+            this.EventMessage.Name = "EventMessage";
+            this.EventMessage.ReadOnly = true;
+            this.EventMessage.Resizable = System.Windows.Forms.DataGridViewTriState.False;
+            // 
             // SAID
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -285,6 +342,7 @@
             this.Text = "Конфигуратор ModbusRTUService";
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.gvEvents)).EndInit();
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             this.tabPage3.ResumeLayout(false);
@@ -315,6 +373,10 @@
         private System.Windows.Forms.ComboBox cbBaudRate;
         private System.Windows.Forms.ComboBox cbPort;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.DataGridView gvEvents;
+        private System.Windows.Forms.Button bRefreshEvent;
+        private System.Windows.Forms.DataGridViewTextBoxColumn DateEvent;
+        private System.Windows.Forms.DataGridViewTextBoxColumn EventMessage;
     }
 }
 

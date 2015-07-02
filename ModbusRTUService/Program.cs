@@ -24,11 +24,11 @@ namespace ModbusRTUService
             catch(Exception ex)
             {
                 EventLog eventLog = new EventLog();
-                if (!EventLog.SourceExists("ModbusRTUServiceEvents"))
+                if (!EventLog.SourceExists("ModbusRTUService"))
                 {
-                    EventLog.CreateEventSource("ModbusRTUServiceEvents", "ModbusRTUServiceEvents");
+                    EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService");
                 }
-                eventLog.Source = "ModbusRTUServiceEvents";
+                eventLog.Source = "ModbusRTUService";
                 eventLog.WriteEntry(String.Format("Exception: {0} \n\nStack: {1}", ex.Message + " : " + ex.ToString(), ex.StackTrace) , EventLogEntryType.Error );
             }
         }
