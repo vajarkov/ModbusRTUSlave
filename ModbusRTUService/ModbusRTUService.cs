@@ -82,7 +82,7 @@ namespace ModbusRTUService
                         {
                             // Добавление в список файлов файла с аналоговыми значениями
                             case "Analog":
-                                unitAnalogFiles[slaves.Id].Add(files.FilePath);
+                                unitAnalogFiles[slaves.Id].Add(files.FilePath.Replace("\\",@"\"));
                                 break;
 
                             // Добавление в список файлов файла с дискретными значениями
@@ -153,7 +153,7 @@ namespace ModbusRTUService
 
                 // Проверка нет ли не считанных файлов дискретных значений
                 if (BWAUS.ContainsKey(id))
-                    BWAUS[id] = fileDiscreteCheck(id, fileParse.BWAUSParse(unitAnalogFiles[id]), unitAnalogFiles[id].Count);
+                    BWAUS[id] = fileDiscreteCheck(id, fileParse.BWAUSParse(unitDiscreteFiles[id]), unitDiscreteFiles[id].Count);
                 else
                     BWAUS.Add(id, fileParse.BWAUSParse(unitDiscreteFiles[id]));
                 

@@ -83,7 +83,7 @@ namespace ModbusRTUService
                         EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService");
                     }
                     eventLog.Source = "ModbusRTUService";
-                    eventLog.WriteEntry(fileName + " : " + ex.Message, EventLogEntryType.Error);
+                    eventLog.WriteEntry(fileName + " : " + ex.Message + "\n" + ex.StackTrace, EventLogEntryType.Error);
                 }
                 nFile++;
             }
@@ -334,7 +334,7 @@ namespace ModbusRTUService
                             EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService");
                         }
                         eventLog.Source = "ModbusRTUService";
-                        eventLog.WriteEntry(source + " : " + paths[source] + "\n" + ex.Message, EventLogEntryType.Error);
+                        eventLog.WriteEntry(source + " : " + key + "\n" + ex.Message, EventLogEntryType.Error);
                     }
                 }
             }
