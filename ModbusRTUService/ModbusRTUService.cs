@@ -38,13 +38,25 @@ namespace ModbusRTUService
             #region Инициализация компонентов
 
             InitializeComponent();
+            //Отключаем автоматическую запись в журнал
+            AutoLog = false;
 
-            
+            // Создаем журнал событий и записываем в него
+            if (!EventLog.SourceExists("ModbusRTUService")) //Если журнал с таким названием не существует
+            {
+                EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService"); // Создаем журнал
+            }
+            eventLog.Source = "ModbusRTUService"; //Помечаем, что будем писать в этот журнал
+
+
+
+            string exePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ServiceConfig.exe");
+
             // Откртытие конфигурационного файла
-            System.Configuration.Configuration appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).HasFile ? ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None) : ConfigurationManager.OpenExeConfiguration("ServiceConfig.exe"); 
+            System.Configuration.Configuration appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).HasFile ? ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None) : ConfigurationManager.OpenExeConfiguration(exePath); 
            
             // Поиск секции настроек Modbus Slave из конфигурационного файла
-            SlaveSettings slaveSettings = (SlaveSettings)ConfigurationManager.GetSection("SlaveSettings");
+            SlaveSettings slaveSettings = (SlaveSettings)appConfig.GetSection("SlaveSettings");
             
             // Если секция найдена
             if (slaveSettings != null)
@@ -79,16 +91,6 @@ namespace ModbusRTUService
                     }
                 }
             }
-
-            //Отключаем автоматическую запись в журнал
-            AutoLog = false;
-
-            // Создаем журнал событий и записываем в него
-            if (!EventLog.SourceExists("ModbusRTUService")) //Если журнал с таким названием не существует
-            {
-                EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService"); // Создаем журнал
-            }
-            eventLog.Source = "ModbusRTUServiceEvents"; //Помечаем, что будем писать в этот журнал
 
             fileParse = new FileParse();    //Инициализация класса для обработки файлов
             mbSlave = new ModbusService();  //Инициализация класса трансляции данных по Modbus
@@ -138,12 +140,20 @@ namespace ModbusRTUService
         {
             #region Обработка файлов и запись их в переменнные
 
-            AWAUS.Clear();
-            BWAUS.Clear();
             foreach (byte id in slaveId)
             {
-                AWAUS.Add(id, fileParse.AWAUSParse(unitAnalogFiles[id]));
-                BWAUS.Add(id, fileParse.BWAUSParse(unitDiscreteFiles[id]));
+                // Проверка нет ли не считанных файлов аналоговых значений
+                if (AWAUS.ContainsKey(id))
+                    AWAUS[id] = fileAnalogCheck(id, fileParse.AWAUSParse(unitAnalogFiles[id]),unitAnalogFiles[id].Count);
+                else
+                    AWAUS.Add(id, fileParse.AWAUSParse(unitAnalogFiles[id]));
+
+                // Проверка нет ли не считанных файлов дискретных значений
+                if (BWAUS.ContainsKey(id))
+                    BWAUS[id] = fileDiscreteCheck(id, fileParse.BWAUSParse(unitAnalogFiles[id]), unitAnalogFiles[id].Count);
+                else
+                    BWAUS.Add(id, fileParse.BWAUSParse(unitDiscreteFiles[id]));
+                
             }
            
             #endregion
@@ -156,6 +166,56 @@ namespace ModbusRTUService
 
             #endregion
         }
+
+        #region Проверка считанных файлов аналоговых значений
+        private ushort[] fileAnalogCheck(byte id, ushort[] response, int count) 
+        {
+            ushort[] checkValues = new ushort[count * 200];
+            UInt32 sum;
+            int start = 0;
+            int end = 0;
+            for (int i = 0; i < count; i++)
+            {
+                sum = 0;
+                start = i * 200;
+                end = i * 200 + 200;
+                for (int j = start; j < end; j++)
+                {
+                    sum += response[j];
+                }
+                if (sum == 0)
+                    Array.Copy(AWAUS[id], start, checkValues, start, 200);
+                else
+                    Array.Copy(response, start, checkValues, start, 200);
+            }
+            return checkValues;
+        }
+        #endregion
+
+        #region Проверка считанных файлов дискретных значений
+        private ushort[] fileDiscreteCheck(byte id, ushort[] response, int count)
+        {
+            ushort[] checkValues = new ushort[count * 6];
+            UInt32 sum;
+            int start = 0;
+            int end = 0;
+            for (int i = 0; i < count; i++)
+            {
+                sum = 0;
+                start = i * 6;
+                end = i * 6 + 6;
+                for (int j = start; j < end; j++)
+                {
+                    sum += response[j];
+                }
+                if (sum == 0)
+                    Array.Copy(BWAUS[id], start, checkValues, start, 6);
+                else
+                    Array.Copy(response, start, checkValues, start, 6);
+            }
+            return checkValues;
+        }
+        #endregion
 
         //Остановка потока
         private void StopSlaveThread()
