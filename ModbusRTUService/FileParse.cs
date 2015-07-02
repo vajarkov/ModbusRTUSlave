@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using System.Globalization;
 using System.Collections;
 using System.Diagnostics;
@@ -288,6 +289,57 @@ namespace ModbusRTUService
             //возвращаем значения
             return AnalogOutput;
         }
+        #endregion
+
+        #region Копирование файла
+
+        public void FileCopy(Dictionary<string, string> paths)
+        {
+            foreach (string key in paths.Keys)
+            {
+                foreach (string source in paths[key].Split(';'))
+                {
+                    //source = source.Trim();
+                    string URL = Path.Combine("ftp://", source).Replace("\\", "/");
+                    var request = (FtpWebRequest)WebRequest.Create(URL);
+                    request.Method = WebRequestMethods.Ftp.DownloadFile;
+                    request.UsePassive = true;
+                    //request.Credentials = new NetworkCredential(userName,password);
+                    byte[] buffer = new byte[1024];
+                    try
+                    {
+                        using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
+                        {
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                using (FileStream fs = new FileStream(paths[source], FileMode.OpenOrCreate, FileAccess.Write))
+                                {
+                                    int readCount = stream.Read(buffer, 0, 1024);
+                                    while (readCount > 0)
+                                    {
+                                        fs.Write(buffer, 0, 1024);
+                                        readCount = stream.Read(buffer, 0, 1024);
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //Если ошибка, то выводим в журнал событий
+                        EventLog eventLog = new EventLog();
+                        if (!EventLog.SourceExists("ModbusRTUService"))
+                        {
+                            EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService");
+                        }
+                        eventLog.Source = "ModbusRTUService";
+                        eventLog.WriteEntry(source + " : " + paths[source] + "\n" + ex.Message, EventLogEntryType.Error);
+                    }
+                }
+            }
+        }
+        
         #endregion
     }
 }

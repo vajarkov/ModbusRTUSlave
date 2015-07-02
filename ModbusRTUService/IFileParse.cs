@@ -29,5 +29,11 @@ namespace ModbusRTUService
         /// <param name="fileName">Путь и имя файла</param>
         /// <returns>Массив данных ushort[]</returns>
         ushort[] ptoParse(string fileName);
+
+        /// <summary>
+        /// Метод для копирования файлов
+        /// </summary>
+        /// <param name="paths">Пути к источниам и месту копирования файла</param>
+        void FileCopy(Dictionary<string, string> paths);
     }
 }

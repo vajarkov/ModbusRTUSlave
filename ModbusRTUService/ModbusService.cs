@@ -29,7 +29,7 @@ namespace ModbusRTUService
             #region Создание хранилища
 
             //Создаем хранилище данных для ModbusSlave
-            DataStore dataStore = DataStoreFactory.CreateDefaultDataStore();
+            //DataStore dataStore = DataStoreFactory.CreateDefaultDataStore();
             //Устанавливаем стартовый адрес для аналоговых значений
             int nAddressMB = 1;
 
@@ -38,27 +38,56 @@ namespace ModbusRTUService
             #region Запись данных в хранилище
 
             //Записываем аналоговые значения
-            foreach (ushort item in AWAUS)
+            if (!mapSlavesData.ContainsKey(slaveId))
             {
-                dataStore.HoldingRegisters[nAddressMB] = item;
-                nAddressMB++;
+                try
+                {
+                    mapSlavesData.Add(slaveId, DataStoreFactory.CreateDefaultDataStore());
+                }
+                catch (Exception ex)
+                {
+                    //Если ошибка пишем в журнал
+                    EventLog eventLog = new EventLog();
+                    if (!EventLog.SourceExists("ModbusRTUService"))
+                    {
+                        EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService");
+                    }
+                    eventLog.Source = "ModbusRTUService";
+                    eventLog.WriteEntry("Modbus Slave : " + slaveId.ToString() + "\n" + ex.Message, EventLogEntryType.Error);
+
+                }
             }
-
-            //Смещаем адрес для дискретных значений
-            nAddressMB = 1001;
-
-            //Записываем дискретные значения
-            foreach (ushort item in BWAUS)
+            try
             {
-                dataStore.HoldingRegisters[nAddressMB] = item;
-                nAddressMB++;
+                // Записыванем аналоговые значения
+                foreach (ushort item in AWAUS)
+                {
+                    mapSlavesData[slaveId].HoldingRegisters[nAddressMB] = item;
+                    nAddressMB++;
+                }
+
+                // Смещаем адрес для дискретных значений
+                nAddressMB = 1001;
+
+                // Записываем дискретные значения
+                foreach (ushort item in BWAUS)
+                {
+                    mapSlavesData[slaveId].HoldingRegisters[nAddressMB] = item;
+                    nAddressMB++;
+                }
             }
-
-            #endregion
-
-            #region Добавление хранилища в общий массив
-
-            mapSlavesData.Add(slaveId, dataStore);
+                catch (Exception ex)
+            {
+                //Если ошибка пишем в журнал
+                EventLog eventLog = new EventLog();
+                if (!EventLog.SourceExists("ModbusRTUService"))
+                {
+                    EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService");
+                }
+                eventLog.Source = "ModbusRTUService";
+                eventLog.WriteEntry("Modbus Slave : " + slaveId.ToString() + "\n" + ex.Message, EventLogEntryType.Error);
+            }
+            
 
             #endregion
 
@@ -70,31 +99,33 @@ namespace ModbusRTUService
             #region Создание и запуск устройства
             try
             {
+                string exePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ServiceConfig.exe"); 
                 #region Чтение конфигурации COM-порта
                 // Откртытие конфигурационного файла
-                System.Configuration.Configuration appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).HasFile ? ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None) : ConfigurationManager.OpenExeConfiguration("ServiceConfig.exe");
+                System.Configuration.Configuration appConfig = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None).HasFile ? ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None) : ConfigurationManager.OpenExeConfiguration(exePath); 
 
                 // Поиск секции настроек COM-порта из конфигурационного файла
-                NameValueCollection SerialPortSection = (NameValueCollection)ConfigurationManager.GetSection("SerialPortSettings");
-                
+                KeyValueConfigurationCollection SerialPortSection = ((AppSettingsSection)appConfig.GetSection("SerialPortSettings")).Settings;
+               
+
                 // Если секция найдена
                 if (SerialPortSection != null)
                 {
                     // Считываем данные порта
                     // Переменная из конфигурационного файла для обращения к нужному порту
-                    string portName = SerialPortSection["PortName"];
+                    string portName = SerialPortSection["PortName"].Value;
                     
                     // Переменная из конфигурационного файла для установки скорости порта
-                    int baudRate = Convert.ToInt32(SerialPortSection["BaudRate"]);
+                    int baudRate = Convert.ToInt32(SerialPortSection["BaudRate"].Value);
                     
                     // Переменная из конфигурационного файла для установки четности порта
-                    Parity parity = (Parity)Enum.Parse(typeof(Parity), SerialPortSection["Parity"]);
+                    Parity parity = (Parity)Enum.Parse(typeof(Parity), SerialPortSection["Parity"].Value);
                     
                     // Переменная из конфигурационного файла для установки битов данных
-                    int dataBits = Convert.ToInt16(SerialPortSection["DataBits"]);
+                    int dataBits = Convert.ToInt16(SerialPortSection["DataBits"].Value);
                     
                     // Переменная из конфигурационного файла для установки стопового бита
-                    StopBits stopBits = (StopBits)Enum.Parse(typeof(StopBits), SerialPortSection["StopBits"]);
+                    StopBits stopBits = (StopBits)Enum.Parse(typeof(StopBits), SerialPortSection["StopBits"].Value);
 
                 #endregion
 
@@ -142,7 +173,7 @@ namespace ModbusRTUService
             if (slave != null)
             {
                 //Очистить общее хранилище данных
-                mapSlavesData.Clear();
+                //mapSlavesData.Clear();
                 //Послать флаг остановки цикла чтения
                 slave.stop = true;
 

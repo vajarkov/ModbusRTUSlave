@@ -86,15 +86,24 @@ namespace ModbusRTUService
     public class SlaveElement : ConfigurationElement{
         
         [ConfigurationProperty("type", IsRequired=true)]
-        public string Type {
+        public string Type 
+        {
             get {   return (string)base["type"];    }
             set {   base["type"] = value;   }
         }
 
         [ConfigurationProperty("filepath", IsRequired = true)]
-        public string  FilePath{
+        public string  FilePath
+        {
             get { return (string)base["filepath"]; }
             set { base["filepath"] = value; }
+        }
+
+        [ConfigurationProperty("source", IsRequired=true)]
+        public string Source
+        {
+            get { return (string)base["source"]; }
+            set { base["source"] = value; }
         }
     }
 }
