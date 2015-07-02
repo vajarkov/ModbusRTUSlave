@@ -21,23 +21,23 @@ namespace ModbusRTUService
         // Переменная для COM-порта
         private static SerialPort comPort;
         // Переменная для хранилища данных нескольких устройств Modbus Slave
-        private static Dictionary<byte, DataStore> mapSlavesData = new Dictionary<byte, DataStore>();
+        private Dictionary<byte, DataStore> mapSlavesData = new Dictionary<byte, DataStore>();
 
         // Создание хранилища данных для Modbus Slave
         public void CreateDataStore(byte slaveId, ushort[] AWAUS, ushort[] BWAUS)
         {
             #region Создание хранилища
 
-            //Создаем хранилище данных для ModbusSlave
-            //DataStore dataStore = DataStoreFactory.CreateDefaultDataStore();
-            //Устанавливаем стартовый адрес для аналоговых значений
+            // Создаем хранилище данных для ModbusSlave
+            // DataStore dataStore = DataStoreFactory.CreateDefaultDataStore();
+            // Устанавливаем стартовый адрес для аналоговых значений
             int nAddressMB = 1;
 
             #endregion
 
             #region Запись данных в хранилище
 
-            //Записываем аналоговые значения
+            // Записываем аналоговые значения
             if (!mapSlavesData.ContainsKey(slaveId))
             {
                 try
@@ -46,7 +46,7 @@ namespace ModbusRTUService
                 }
                 catch (Exception ex)
                 {
-                    //Если ошибка пишем в журнал
+                    // Если ошибка пишем в журнал
                     EventLog eventLog = new EventLog();
                     if (!EventLog.SourceExists("ModbusRTUService"))
                     {
@@ -59,6 +59,7 @@ namespace ModbusRTUService
             }
             try
             {
+
                 // Записыванем аналоговые значения
                 foreach (ushort item in AWAUS)
                 {
@@ -78,7 +79,7 @@ namespace ModbusRTUService
             }
                 catch (Exception ex)
             {
-                //Если ошибка пишем в журнал
+                // Если ошибка пишем в журнал
                 EventLog eventLog = new EventLog();
                 if (!EventLog.SourceExists("ModbusRTUService"))
                 {
@@ -93,7 +94,7 @@ namespace ModbusRTUService
 
         }
 
-        //Запуск Modbus-устройства
+        // Запуск Modbus-устройства
         public void StartRTU()
         {
             #region Создание и запуск устройства
@@ -130,21 +131,21 @@ namespace ModbusRTUService
                 #endregion
 
                     #region Инициализируем и открываем COM-порт
-                    //Создаем COM-порт
+                    // Создаем COM-порт
                     using (comPort = new SerialPort(portName, baudRate, parity, dataBits, stopBits))
                     {
 
-                        //Открываем порт, если закрыт
+                        // Открываем порт, если закрыт
                         if (!comPort.IsOpen)
                             comPort.Open();
 
                     #endregion
 
                         #region Создание Modbus-устройства и его запуск
-                        //Создаем устройство
+                        // Создаем устройство
                         slave = ModbusSerialSlave.CreateRtu(mapSlavesData, comPort);
 
-                        //Запускаем устройства
+                        // Запускаем устройства
                         slave.Listen();
                         #endregion
                     }
@@ -152,7 +153,7 @@ namespace ModbusRTUService
             }
             catch (Exception ex)
             {
-                //Если ошибка пишем в журнал
+                // Если ошибка пишем в журнал
                 EventLog eventLog = new EventLog();
                 if (!EventLog.SourceExists("ModbusRTUService"))
                 {
@@ -164,17 +165,17 @@ namespace ModbusRTUService
             #endregion
         }
 
-        //Остановка Modbus-устройства
+        // Остановка Modbus-устройства
         public void StopRTU()
         {
             #region Отсновка устройства
 
-            //Если устройство создано
+            // Если устройство создано
             if (slave != null)
             {
-                //Очистить общее хранилище данных
-                //mapSlavesData.Clear();
-                //Послать флаг остановки цикла чтения
+                // Очистить общее хранилище данных
+                // mapSlavesData.Clear();
+                // Послать флаг остановки цикла чтения
                 slave.stop = true;
 
             }
