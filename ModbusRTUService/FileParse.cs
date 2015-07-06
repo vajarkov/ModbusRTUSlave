@@ -83,7 +83,7 @@ namespace ModbusRTUService
                         EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService");
                     }
                     eventLog.Source = "ModbusRTUService";
-                    eventLog.WriteEntry(fileName + " : " + ex.Message + "\n" + ex.StackTrace, EventLogEntryType.Error);
+                    eventLog.WriteEntry(fileName + " : " + ex.Message, EventLogEntryType.Error);
                 }
                 nFile++;
             }
@@ -301,10 +301,39 @@ namespace ModbusRTUService
                 {
                     //source = source.Trim();
                     string URL = Path.Combine("ftp://", source).Replace("\\", "/");
-                    var request = (FtpWebRequest)WebRequest.Create(URL);
+                    try
+                    {
+                        using (WebClient request = new WebClient())
+                        {
+                            request.Credentials = new NetworkCredential("txpext", "exttoom");
+                            byte[] fileData = request.DownloadData(URL);
+
+                            using (FileStream file = File.Create(key))
+                            {
+                                file.Write(fileData, 0, fileData.Length);
+                                file.Close();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //Если ошибка, то выводим в журнал событий
+                        EventLog eventLog = new EventLog();
+                        if (!EventLog.SourceExists("ModbusRTUService"))
+                        {
+                            EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService");
+                        }
+                        eventLog.Source = "ModbusRTUService";
+                        eventLog.WriteEntry(URL + " : " + ex.Message, EventLogEntryType.Error);
+                    }
+                    /*
+                    using (WebClient request = new )
+                    ///var request = (FtpWebRequest)WebRequest.Create(URL);
+                    request.Credentials = new NetworkCredential("txpext","exttoom");
+                    //request.UsePassive = false;
+                    //request.UseBinary = true;
+                    //request.KeepAlive = true;
                     request.Method = WebRequestMethods.Ftp.DownloadFile;
-                    request.UsePassive = true;
-                    //request.Credentials = new NetworkCredential(userName,password);
                     byte[] buffer = new byte[1024];
                     try
                     {
@@ -312,7 +341,7 @@ namespace ModbusRTUService
                         {
                             using (Stream stream = response.GetResponseStream())
                             {
-                                using (FileStream fs = new FileStream(paths[source], FileMode.OpenOrCreate, FileAccess.Write))
+                                using (FileStream fs = new FileStream(key, FileMode.OpenOrCreate, FileAccess.Write))
                                 {
                                     int readCount = stream.Read(buffer, 0, 1024);
                                     while (readCount > 0)
@@ -334,8 +363,8 @@ namespace ModbusRTUService
                             EventLog.CreateEventSource("ModbusRTUService", "ModbusRTUService");
                         }
                         eventLog.Source = "ModbusRTUService";
-                        eventLog.WriteEntry(source + " : " + key + "\n" + ex.Message, EventLogEntryType.Error);
-                    }
+                        eventLog.WriteEntry(URL + " : " + ex.Message, EventLogEntryType.Error);
+                    }*/
                 }
             }
         }

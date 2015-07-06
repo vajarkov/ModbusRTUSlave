@@ -30,6 +30,7 @@
         {
             this.serviceProcessInstaller1 = new System.ServiceProcess.ServiceProcessInstaller();
             this.serviceInstaller1 = new System.ServiceProcess.ServiceInstaller();
+            this.eventLogInstaller = new System.Diagnostics.EventLogInstaller();
             // 
             // serviceProcessInstaller1
             // 
@@ -43,12 +44,20 @@
             this.serviceInstaller1.DisplayName = "ModbusRTUService";
             this.serviceInstaller1.ServiceName = "ModbusRTUService";
             this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
+            this.serviceInstaller1.Installers.Clear();
+            //
+            // EventLogInstaller
+            //
+            this.eventLogInstaller.Source = "ModbusRTUService";
+            this.eventLogInstaller.Log = "ModbusRTUService";
+            
             // 
             // ProjectInstaller
             // 
             this.Installers.AddRange(new System.Configuration.Install.Installer[] {
             this.serviceProcessInstaller1,
-            this.serviceInstaller1});
+            this.serviceInstaller1,
+            this.eventLogInstaller});
 
         }
 
@@ -56,5 +65,6 @@
 
         private System.ServiceProcess.ServiceProcessInstaller serviceProcessInstaller1;
         private System.ServiceProcess.ServiceInstaller serviceInstaller1;
+        private System.Diagnostics.EventLogInstaller eventLogInstaller;
     }
 }

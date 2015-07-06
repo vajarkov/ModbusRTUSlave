@@ -21,7 +21,7 @@ namespace ModbusRTUService
         // Переменная для COM-порта
         private static SerialPort comPort;
         // Переменная для хранилища данных нескольких устройств Modbus Slave
-        private Dictionary<byte, DataStore> mapSlavesData = new Dictionary<byte, DataStore>();
+        private static Dictionary<byte, DataStore> mapSlavesData = new Dictionary<byte, DataStore>();
 
         // Создание хранилища данных для Modbus Slave
         public void CreateDataStore(byte slaveId, ushort[] AWAUS, ushort[] BWAUS)
